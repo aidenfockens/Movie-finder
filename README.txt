@@ -1,1 +1,12 @@
-This application uses the TMDB API for real-word statistics 
+This application uses the TMDB API to provide the user with:
+ - recommendations for their next favorite movie!
+     - uses other favorite movies, genres, and favorite actors
+     - users can input and store their favorite movies, allowing for easy recollection
+ - Find the best episode from a show!
+      - searches for the most popular episode
+ - View real-time visualization of statistics about movies, actors, and shows! These include:
+     - genre popularity 
+     - seasonality of releases
+     - budgets vs. revenues
+     - diversity of films
+     - amount of ratings vs time
