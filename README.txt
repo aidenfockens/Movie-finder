@@ -2,6 +2,7 @@ This application uses the TMDB API to provide the user with:
  - recommendations for their next favorite movie!
      - uses other favorite movies, genres, and favorite actors
      - users can input and store their favorite movies, allowing for easy recollection
+* could use sentiment analysis to find the best review and show it
  - Find the best episode from a show!
       - searches for the most popular episode
  - View real-time visualization of statistics about movies, actors, and shows! These include:
