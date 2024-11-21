@@ -252,6 +252,7 @@ def get_actor_top_movies(actor_id, genre_id=None):
     return [
         {
             "title": movie['title'],
+            "id": movie['id'],
             "rating": movie['vote_average'],
             "release_date": movie.get('release_date', 'N/A'),
             "description": movie['overview']
@@ -299,51 +300,43 @@ def get_recommendations():
     min_rating = float(request.args.get('min_rating', 7.0))  # Minimum rating, default 7.0
     desired_genre = request.args.get('genre')  # Optional genre filter
     media_type = request.args.get('media_type')  # 'movie' or 'tv'
+    actor_name = request.args.get('actor_name')  # Actor name to highlight movies
 
-    # Debugging: Print initial values
-    print(f"Request received for title: {title}, min_rating: {min_rating}, genre: {desired_genre}, media_type: {media_type}")
-
-    # Check for required media_type parameter
-    if media_type not in ['movie', 'tv']:
-        print("Error: Invalid media_type")
-        return jsonify({"error": "media_type parameter must be either 'movie' or 'tv'."}), 400
-
-    # Step 1: Get the genre ID for the specified genre, if provided
+    # Get genre ID
     genre_id = get_genre_id(desired_genre, media_type) if desired_genre else None
-    print(f"Genre ID resolved to: {genre_id}")
 
-    # Step 2: Search for the media title and get its ID
-    if media_type == 'tv':
-        media_id = get_show_id(title)
-    else:
-        media_id = get_movie_id(title)
-
+    # Search for the media title and get its ID
+    media_id = get_show_id(title) if media_type == 'tv' else get_movie_id(title)
     if media_id is None:
-        print(f"Error: {media_type.title()} '{title}' not found.")
         return jsonify({"error": f"{media_type.title()} '{title}' not found."}), 404
 
-    print(f"{media_type.title()} ID resolved to: {media_id}")
-
-    # Step 3: Get recommendations based on the media ID
+    # Fetch recommendations
     recommendations_url = f"https://api.themoviedb.org/3/{media_type}/{media_id}/recommendations?api_key={api_key}"
     recommendations_response = requests.get(recommendations_url, headers=headers)
-    recommendations_response.raise_for_status()
-    recommendations_data = recommendations_response.json()
-    print(f"Received {len(recommendations_data['results'])} recommendations")
+    recommendations_data = recommendations_response.json().get('results', [])
 
-    # Step 4: Filter recommendations by rating and genre, if genre is provided
+    # Filter recommendations
     filtered_recommendations = [
         {
             "title": item['title'] if media_type == 'movie' else item['name'],
             "rating": item['vote_average'],
-            "description": item['overview']
+            "description": item['overview'],
+            "movie_id": item['id']
         }
-        for item in recommendations_data['results']
+        for item in recommendations_data
         if item['vote_average'] >= min_rating and (genre_id is None or genre_id in item.get('genre_ids', []))
     ]
 
-    print(f"Filtered down to {len(filtered_recommendations)} recommendations after applying rating and genre filters")
-    return jsonify(filtered_recommendations)
+    # Highlight movies featuring the searched actor
+    if actor_name:
+        actor_id = get_actor_id(actor_name)
+        if actor_id:
+            actor_movies = {movie['id'] for movie in get_actor_top_movies(actor_id)}
+            for movie in filtered_recommendations:
+                if movie['movie_id'] in actor_movies:
+                    movie['highlight'] = True
+
+    return jsonify(filtered_recommendations[:5])
 
 # Other endpoints remain the same as before
 
