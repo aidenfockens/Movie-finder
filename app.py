@@ -94,7 +94,9 @@ def predict():
 
 
 
-
+@app.route("/")
+def home():
+    return "Flask is running!", 200
 
 
 
