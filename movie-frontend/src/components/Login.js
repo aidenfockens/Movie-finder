@@ -16,8 +16,8 @@ const Login = ({ onLogin }) => {
         { withCredentials: true });
       if (response.data.message) {
         setMessage('Login successful!');
-        onLogin(); // Trigger login state update
-        navigate('/home'); // Redirect to Home
+        onLogin();
+        navigate('/home');
       }
     } catch (error) {
       setMessage(error.response?.data?.error || 'Login failed');
@@ -25,7 +25,7 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <input
@@ -44,7 +44,7 @@ const Login = ({ onLogin }) => {
         />
         <button type="submit">Login</button>
       </form>
-      <p>{message}</p>
+      <p className={`message ${message.includes('successful') ? 'success' : 'error'}`}>{message}</p>
     </div>
   );
 };

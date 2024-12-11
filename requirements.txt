@@ -1,0 +1,13 @@
+flask
+flask-cors
+flask-sqlalchemy
+numpy
+joblib
+requests
+werkzeug
+pandas
+matplotlib
+scikit-learn
+xgboost
+jupyter
+nbconvert

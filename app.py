@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request, redirect, render_template, session, url_for, flash, make_response
+import numpy as np
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-
+import os
+import joblib
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -26,6 +28,72 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://afockens:DAfense101!!@u
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cookies across domains
 app.config['SESSION_COOKIE_SECURE'] = True
+
+MODEL_FOLDER = os.path.join(os.path.dirname(__file__), 'data_analysis')
+random_forest_model = joblib.load(os.path.join(MODEL_FOLDER, 'random_forest_model.pkl'))
+xgboost_model = joblib.load(os.path.join(MODEL_FOLDER, 'best_xgb_model.pkl'))
+label_encoder = joblib.load(os.path.join(MODEL_FOLDER, 'label_encoder.pkl'))
+
+
+DECADES = [1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+SEASONS = ['Winter', 'Spring', 'Summer', 'Fall']
+GENRES = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama',
+          'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'Romance',
+          'Science Fiction', 'TV Movie', 'Thriller', 'War', 'Western']
+
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.json
+
+    # Extract and preprocess features
+    decade = data.get('decade', 2020)  # Default to 2020
+    season = data.get('season', 'Winter')  # Default to Winter
+    genres = data.get('genres', [])
+    budget = np.log1p(data.get('budget', 0))  # Log transform budget
+    runtime = np.log1p(data.get('runtime', 0))  # Log transform runtime
+    vote_count =  4.42 # AVERAGED
+    vote_average = 1.8  # AVERAGED
+    avg_studio_rank = 8.38 # AVERAGED
+    has_homepage = int(data.get('has_homepage', 0))  # Binary feature
+
+    # One-hot encode decades, seasons, and genres
+    decade_vector = [1 if d == decade else 0 for d in DECADES]
+    season_vector = [1 if s == season else 0 for s in SEASONS]
+    genre_vector = [1 if genre in genres else 0 for genre in GENRES]
+
+    # Combine all features into a single array
+    feature_vector = np.array(
+        decade_vector + 
+        season_vector + 
+        genre_vector + 
+        [budget, runtime, vote_count, vote_average,  has_homepage, avg_studio_rank]
+    ).reshape(1, -1)
+    print(feature_vector)
+
+    # Get predictions
+    rf_prediction = random_forest_model.predict(feature_vector)[0]
+    rf_decoded = label_encoder.inverse_transform([rf_prediction])[0]  # Decode RF prediction
+
+    xgb_prediction = xgboost_model.predict(feature_vector)[0]  # XGB predicts log_revenue directly
+    xgb_revenue = np.expm1(xgb_prediction)  # Convert log_revenue back to revenue
+
+    # Return predictions
+    return jsonify({
+        'random_forest_prediction': rf_decoded,
+        'xgboost_prediction': f"${xgb_revenue:,.2f}"  # Format as a readable revenue value
+    })
+
+
+
+
+
+
+
+
+
+
+
 
 
 

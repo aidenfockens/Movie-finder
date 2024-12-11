@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import '../styles.css';
 
 const Home = () => {
-  // State for search and favorites
   const [query, setQuery] = useState('');
-  const [mediaType, setMediaType] = useState('movie'); // Default to 'movie'
+  const [mediaType, setMediaType] = useState('movie');
   const [searchResults, setSearchResults] = useState([]);
   const [searchMessage, setSearchMessage] = useState('');
 
-  // State for recommendations
   const [recommendQuery, setRecommendQuery] = useState('');
-  const [recommendMediaType, setRecommendMediaType] = useState('movie'); // Default to 'movie'
+  const [recommendMediaType, setRecommendMediaType] = useState('movie');
   const [actorName, setActorName] = useState('');
   const [recommendResults, setRecommendResults] = useState([]);
   const [recommendMessage, setRecommendMessage] = useState('');
 
-  // Handle search
   const handleSearch = async () => {
     try {
       const response = await axios.get('http://127.0.0.1:5001/search_media', {
@@ -30,7 +28,6 @@ const Home = () => {
     }
   };
 
-  // Handle add to favorites
   const handleAddToFavorites = async (item) => {
     try {
       const response = await axios.post(
@@ -48,7 +45,6 @@ const Home = () => {
     }
   };
 
-  // Handle recommendations
   const handleRecommendations = async () => {
     try {
       const response = await axios.get('http://127.0.0.1:5001/recommendations', {
@@ -68,11 +64,10 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Home</h2>
 
-      {/* Search and Favorites Section */}
-      <div>
+      <div className="search-section">
         <h3>Search and Add to Favorites</h3>
         <input
           type="text"
@@ -83,16 +78,14 @@ const Home = () => {
         <button onClick={() => setMediaType('movie')}>Movie</button>
         <button onClick={() => setMediaType('tv')}>Show</button>
         <button onClick={handleSearch}>Search</button>
-        <div>
+        <div className="results-container">
           {searchResults.length > 0 ? (
             searchResults.map((item) => (
-              <div key={item.id}>
+              <div key={item.id} className="result-item">
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <p>Rating: {item.rating}</p>
-                <button onClick={() => handleAddToFavorites(item)}>
-                  Add to Favorites
-                </button>
+                <button onClick={() => handleAddToFavorites(item)}>Add to Favorites</button>
               </div>
             ))
           ) : (
@@ -101,8 +94,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Recommendation Section */}
-      <div style={{ marginTop: '20px', borderTop: '2px solid #ccc', paddingTop: '10px' }}>
+      <div className="recommendations-section" style={{ marginTop: '20px' }}>
         <h3>Get Recommendations</h3>
         <input
           type="text"
@@ -119,10 +111,10 @@ const Home = () => {
         <button onClick={() => setRecommendMediaType('movie')}>Movie</button>
         <button onClick={() => setRecommendMediaType('tv')}>Show</button>
         <button onClick={handleRecommendations}>Recommend</button>
-        <div>
+        <div className="recommendations-container">
           {recommendResults.length > 0 ? (
             recommendResults.map((item) => (
-              <div key={item.movie_id} style={{ backgroundColor: item.highlight ? '#ffeb3b' : 'white' }}>
+              <div key={item.movie_id} className="recommendation-item" style={{ backgroundColor: item.highlight ? '#ffeb3b' : 'white' }}>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <p>Rating: {item.rating}</p>

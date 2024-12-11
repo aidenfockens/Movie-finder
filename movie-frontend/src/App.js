@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import Home from './components/Home';
 import DataAnalysis from './components/DataAnalysis';
+import './styles.css'; // Import the CSS file
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Tracks login status
@@ -32,9 +33,7 @@ const App = () => {
             <>
               <Link to="/home">Home</Link>
               <Link to="/data-analysis">Data Analysis</Link>
-              <button onClick={handleLogout} style={{ marginLeft: '10px' }}>
-                Log Out
-              </button>
+              <button onClick={handleLogout}>Log Out</button>
             </>
           )}
         </nav>

@@ -19,8 +19,8 @@ const Signup = ({ onSignup }) => {
       });
       if (response.data.message) {
         setMessage('Signup successful!');
-        onSignup(); // Trigger login state update
-        navigate('/home'); // Redirect to Home
+        onSignup();
+        navigate('/home');
       }
     } catch (error) {
       setMessage(error.response?.data?.error || 'Signup failed');
@@ -28,7 +28,7 @@ const Signup = ({ onSignup }) => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Sign Up</h2>
       <form onSubmit={handleSignup}>
         <input
@@ -54,7 +54,7 @@ const Signup = ({ onSignup }) => {
         />
         <button type="submit">Sign Up</button>
       </form>
-      <p>{message}</p>
+      <p className={`message ${message.includes('successful') ? 'success' : 'error'}`}>{message}</p>
     </div>
   );
 };
