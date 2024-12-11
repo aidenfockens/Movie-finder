@@ -27,6 +27,10 @@ Run My Code:
 
 --------------------------------------------------------------------------------
 
+Github Workflow:
+
+My workflow uses my makefile and tests that both the react app and flask app are correctly running. 
+
 Project Overview:
 
 I used the Full TMDB Movies Dataset 2024 on Kaggle, which includes 2.7 million entries. However, only ~16,000 entries had revenue data, so I trained my models using this subset. This limited data impacted the accuracy of the models.
